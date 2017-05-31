@@ -1,0 +1,26 @@
+echo
+echo Testing Test Commands...
+echo
+test -e Legacy.h && echo Legacy.h exists
+[ -e Legacy.h ] && echo Legacy.h exists
+test -d Legacy.h || echo directory Legacy.h does not exist
+[ -f .h ] && echo file Legacy.h exists
+
+echo
+echo Creating testDir and testFile
+mkdir testDir
+touch testFile
+
+test -d testDir && echo testDir exists ~directory~
+test -f testFile && echo testFile exits ~file~
+
+rm testFile
+rm -r testDir
+
+echo
+echo Deleted testFile and testDir
+[ -d testDir ] || echo testDir no longer exists
+test -f testFile || echo testFile no longer exist
+exit
+echo Program will exit now.
+exit

@@ -1,0 +1,21 @@
+echo
+echo Test Single Commands...
+echo
+echo Listing - long
+ls -l
+echo
+echo Creating new directory "tDir"
+mkdir tDir
+echo
+echo Performing ls to show new directory
+ls -l
+echo
+echo Deleting "tDir" 
+rmdir tDir
+echo Performing ls to show tDir has been deleted
+ls -l
+echo
+ls -m
+echo
+echo Program will exit now.
+echo

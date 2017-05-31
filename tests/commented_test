@@ -1,0 +1,25 @@
+echo
+echo Testing Comments
+echo
+#Random Comment
+echo Single Command Comment
+echo #Bulbasaur
+echo This is not a comment #comment
+echo #echo
+echo #     echo
+#Random Comment
+echo ls Command With Comments
+ls #-1
+echo
+ls -1 #-l
+echo
+echo Connected Command Comments
+touch testfile && ls && echo #comment
+echo Charizard && pwd #echo wow
+#Random Comment
+invalidCMD || rm testfile # && mkdir Faildir
+echo
+ls
+echo
+echo Program will exit now.
+exit

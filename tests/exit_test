@@ -1,0 +1,9 @@
+echo
+echo Testing Exit...
+echo
+echo Should not exit yet || exit #Should not exit yet
+echo
+echo Performing ls -m... && ls -m || exit #Should not exit yet
+echo
+echo On the count of three, exit... && echo 1 && echo 2 && echo 3 && exit #Should have exit by now
+
