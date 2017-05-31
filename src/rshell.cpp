@@ -1,6 +1,6 @@
 //
 //
-//          Assignment 1/2 - Design a 'bash' shell 
+//          Assignment 1/2/3 - Design a 'bash' shell 
 //
 //              David Weber & Immanuel Chu
 //                      5/10/17
@@ -23,12 +23,15 @@
 #include "And.h"
 #include "Or.h"
 #include "Semicolon.h"
+#include "Test.h"
+#include "Parenth.h"
 
 using namespace std;
 
 void parseInput(string&, Legacy*&);
+void testProtocol(string&, Legacy*&);
 bool checkForSpace(const string& input);
-void makeTree(Legacy*&, vector<char>&, vector<string>&);
+void makeTree(Legacy*&, vector<char>&, vector<string>&, bool);
 Legacy* treeUtility(vector<char>& connectors, vector<string>& commands);
 
 //checks input string for spaces in conjunction with #comments in other part
@@ -49,176 +52,289 @@ bool checkForSpace(const string& input)
     return true;
 }
 
+void testProtocol(string& input, Legacy* &inputs)
+{
+    cout << "yolo" << endl;
+    return;
+}
+
 void parseInput(string &input, Legacy* &inputs)
 {
-    //VARS 
     bool commentFound = false;
+    //bool parenFound = false;
     bool commandPush = false;
+    bool leftbracketFound = false;
+    bool testSignaled = false;
     vector<char> connectors;
     vector<string> commands;
-    unsigned begin = 0;
+    unsigned begin = 0; //beginning index. this will increment as the input is parsed to create the "new" input
     
     //check if '#' entered
-    for(unsigned i = 0; i < input.size() && commentFound != true; ++i) 
+    for(unsigned i = 0; i < input.size() && commentFound != true; ++i)  //run until end of input or until comment is found 
     {
-        if(input.at(i) == '#') 
+        //cout << "1" << endl;
+        if(input.at(i) == '#') //comment found
         {
-            input = input.substr(begin, i - begin);
-            commentFound = true;
+            input = input.substr(begin, i - begin); //input is now substring from beginning until comment
+            commentFound = true; //set comment flag to true
         }
-    }
+    }//END FOR
+    
+    //check if '[' entered
+    for(unsigned i = 0; i < input.size() && leftbracketFound != true; ++i) //run until end of input or left bracket is found
+    {
+        //cout << "2" << endl;
+        if(input.at(i) == '[') //bracket found
+        {
+            input.erase(0, 2);   //erase
+            leftbracketFound = true;   //set bracket flag to true
+        }
+    }//END FOR
+    
+    
+    
     
     // gets rid of whitespace
-    if(input.at(input.size() - 1) == ' ') 
+    if(input.at(input.size() - 1) == ' ') //if end of input is a whitespace
     {
-        unsigned i = input.size() - 1;
+        //cout << "3" << endl;
+        unsigned i = input.size() - 1; //set i = last index of input
         
-        while(input.at(i) == ' ') 
+        while(input.at(i) == ' ')   //while last index of input is whitespace
         {
-            i--;
+            i--;  //set new index of i to not have whitespace
         }
         
-        input = input.substr(0, i + 1);
-    }
+        input = input.substr(0, i + 1);   //new input is now input without whitespaces (takes on i index)
+    }//END IF
     
-    for(unsigned i = 0; i < input.size(); ++i) 
+    for(unsigned i = 0; i < input.size(); ++i)  //run through whle input
     {
-        // command found??
-        if(commandPush) 
+        //cout << "4" << endl;
+        if(commandPush) //if commandPush flag is true
         {
-            while(input.at(i) == ' ' && i < input.size()) 
+            //cout << "5" << endl;
+            while(input.at(i) == ' ' && i < input.size())   //while input @ index i is whitespace and i < inputsize
             {
-                if(i != input.size() - 1) 
+                if(i != input.size() - 1) //while i is not inputsize
                 {
-                    ++i;
-                    ++begin;
+                    ++i;   //increment whole array to make "new" input
+                    ++begin;  //by incrementing i and begin
                 }
             }
-            commandPush = false;
+            commandPush = false; //set commandPush flag to false
         }
         
-        // detects semicolon
-        if(input.at(i) == ';') 
+        //check for semicolon
+        if(input.at(i) == ';')   //if semicolon
+        {
+            //cout << "6" << endl;
+            connectors.push_back(input.at(i));  //pushback ';' connector
+            commands.push_back(input.substr(begin, i - begin));   //pushback commands using index i
+            begin = i + 1; //set new being
+            commandPush = true;  //command was pushed
+        }
+        
+        //check for ending brackets
+        //leftbracketFound is set above so need only check for right 
+        else if(input.at(i) == ']' && leftbracketFound)  //if input at i is ']' and leftbracket exists              
+        {
+            //cout << "7" << endl;
+            commands.push_back(input.substr(begin, i - begin));   //pushback input from begin to i - begin
+            begin = i + 3; //increment begin to make "new" input
+            testSignaled = true; //set testSignaled flag to true
+            commandPush = true;  //set commandPush flag to true
+        }  
+        
+        //check for ending parantheses
+        //left paren is set above so need only check for right
+        else if(input.at(i) == '(')
         {
             connectors.push_back(input.at(i));
             commands.push_back(input.substr(begin, i - begin));
             begin = i + 1;
             commandPush = true;
         }
-        else if(input.at(i) == '&' && i < (input.size() - 1)) 
+        else if(input.at(i) == ')')
         {
-            if(input.at(i + 1) == '&') 
-            {
-                connectors.push_back(input.at(i));
-                commands.push_back(input.substr(begin, i - begin));
-                begin = i + 2;
-                commandPush = true;
+            /* FIX
+            cant just pushback, as paren places it in the front
+            */
+            connectors.push_back(input.at(i));
+            commands.push_back(input.substr(begin, i - begin));   //pushback input from begin to i - begin
+            begin = i + 1; //increment begin to make "new" input
+            commandPush = true;  //set commandPush flag to true
+        }
+        
+        //check for connecter '&'                    
+        else if(input.at(i) == '&' && i < (input.size() - 1)) //if '&' is found and there is still some of input to parse
+        {
+            //cout << "8" << endl;
+            if(input.at(i + 1) == '&')  //check for the second "&" ex. "&&" instead of just '&'
+            {  
+                //cout << "9" << endl;
+                connectors.push_back(input.at(i)); //push back connector '&'
+                commands.push_back(input.substr(begin, i - begin));  //pushback commands from begin to i - begin
+                begin = i + 2;   //increment begin by 2 to make up for "&&"
+                commandPush = true; //set commandPush to true
             }
         }
-
-        else if(input.at(i) == '|' && i < (input.size() - 1)) 
+        
+        //check for connector '|'
+        else if(input.at(i) == '|' && i < (input.size() - 1))  //if '|' is found and there is still some of input to parse
         {
-            if(input.at(i + 1) == '|') 
+            //cout << "10" << endl;
+            if(input.at(i + 1) == '|') //if second '|' exists
             {
-                connectors.push_back(input.at(i));
-                commands.push_back(input.substr(begin, i - begin));
-                begin = i + 2;
-                commandPush = true;
+                //cout << "11" << endl;
+                connectors.push_back(input.at(i)); //push back command at index i
+                commands.push_back(input.substr(begin, i - begin));  //pushback commands from begin to i - begin
+                begin = i + 2;   //increment begin by 2 to make up for "||"
+                commandPush = true; //set commandPush flag to true
             }
         }
-        else if(!connectors.empty() && !commands.empty() && i == input.size() - 1 && input.at(input.size() - 1) != ';') 
+        //if connectors, commands are not empty, and no more input to parse, and last char is NOT ';', and testSignaled is false
+        else if(!connectors.empty() && !commands.empty() && i == input.size() - 1 && input.at(input.size() - 1) != ';' && !testSignaled) 
         {
-            commands.push_back(input.substr(begin, input.size()));
+            //cout << "12" << endl;
+            commands.push_back(input.substr(begin, input.size()));   //pushback the whole input. input has no connectors, simply one command
         }
-    }
+    }//END FOR
     
+    //last element of connectors is not empty and ';'
     if(!connectors.empty() && connectors.back() == ';' && commands.back() == "") 
     {
-        connectors.pop_back();
-        commands.pop_back();
-    }
+        //cout << "13" << endl;
+        connectors.pop_back();   //get rid of ';' in connectors
+        commands.pop_back();  //get rid of last element in commands
+    }//END IF
 
-    
-    if(connectors.size() == 0)      //single command
+    //if connectors has nothing and testSignaled is false
+    if(connectors.size() == 0 && !testSignaled) //single command
     {
-        commands.push_back(input.substr(begin, input.size() - begin));
-    }
+        //cout << "14" << endl;
+        commands.push_back(input.substr(begin, input.size() - begin));  //pushback single command
+    }// END IF
     
-    makeTree(inputs, connectors, commands);
+    makeTree(inputs, connectors, commands, testSignaled);   //make tree with executes
     
     return;
 }
 
-void makeTree(Legacy*& inputs, vector<char>& connectors, vector<string>& commands)
+void makeTree(Legacy*& inputs, vector<char>& connectors, vector<string>& commands, bool testSignaled)
 {
-    for(unsigned i = 0; i < commands.size(); i++) // Removes all the empty commands
+    
+    for(unsigned i = 0; i < commands.size(); i++) //runs through commands and removes empty commands
     {  
-        if(commands.at(i) == "") 
+        if(commands.at(i) == "") //if empty command
         {
-            commands.erase(commands.begin() + i - 1);
+            commands.erase(commands.begin() + i - 1); //erase empty commands
         }
     }
     
-    if(commands.size() == 1) //if single command
+    if((commands.size() == 1) && testSignaled)  //if command has only one element, and testsignaled = true
     {
-        Legacy* in = new CMD(commands.at(0));
-        inputs = in;
-        in = 0;
+        Legacy* in = new Test(commands.at(0));  //make new Test object
+        inputs = in; //inputs 
+        in = 0; //set in to 0
         return;
     }
     
-    inputs = treeUtility(connectors, commands);
+    else if(commands.size() == 1) //if single command
+    {
+        Legacy* in = new CMD(commands.at(0));
+        inputs = in;
+        in = 0;   //reset in
+        return;
+    }
+    
+    inputs = treeUtility(connectors, commands); //create executables..?
     return;
 }
 
+
 Legacy* treeUtility(vector<char>& connectors, vector<string>& commands) 
 {
-   
-    if(commands.size() == 1 && connectors.empty())  // Legacy case, returns a Command
+    if(commands.size() == 1 && connectors.empty())  // Base Legacy case, returns a Command
     { 
         // cout << "Legacy" << endl;
         return new CMD(commands.at(0));
     }
     
-    if (connectors.back() == '&')
+    if (connectors.back() == '&')   //if last element of connectors is '&', create AND object
     {
-        connectors.pop_back();
-        AND* connector = new AND(); //creat new AND
+        connectors.pop_back();   //delete last object, in this case '&'. this is possible because there are two '&'
+        AND* connector = new AND(); //creat new AND object
         
-        connector->setrightChild(new CMD(commands.back())); //set right
-        commands.pop_back();
-        
-        connector->setleftChild(treeUtility(connectors, commands)); //set left
+        connector->setrightChild(new CMD(commands.back())); //simultaneously create new CMD of last element of commands and set it as connector's right child
+        commands.pop_back();  //delete commands last element
+        connector->setleftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
 
-        return connector;
+        return connector; //input = connector
     }
     
-    if (connectors.back() == ';') 
+    if (connectors.back() == ';')   //if last element is ';'
     {
-        connectors.pop_back();
-        Semicolon* connector = new Semicolon(); //create new SEMI
+        connectors.pop_back();  //delete ';'
+        Semicolon* connector = new Semicolon(); //create new Semicolon object
         
-        connector->setrightChild(new CMD(commands.back())); //set right
-        commands.pop_back();
-        connector->setleftChild(treeUtility(connectors, commands)); //set left
-        return connector;
-    }
+        connector->setrightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
+        commands.pop_back();  //delete commands last element
+        connector->setleftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
 
-
-    if (connectors.back() == '|') 
-    {
-        connectors.pop_back();
-        
-        OR* connector = new OR();   //create new OR
-        connector->setRightChild(new CMD(commands.back())); //set right child
-        commands.pop_back();        
-        
-        connector->setLeftChild(treeUtility(connectors, commands)); //set left
-        
-        return connector;
+        return connector;  //input = connector
     }
     
+    if(connectors.back() == ')')
+    {
+        connectors.pop_back();
+        
+        while(connectors.back() != '(')
+        {
+            if (connectors.back() == '&')   //if last element of connectors is '&', create AND object
+            {
+                connectors.pop_back();   //delete last object, in this case '&'. this is possible because there are two '&'
+                AND* connector = new AND(); //creat new AND object
+                
+                connector->setrightChild(new CMD(commands.back())); //simultaneously create new CMD of last element of commands and set it as connector's right child
+                commands.pop_back();  //delete commands last element
+                connector->setleftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
+                
+                Parenth* connector2 = new Parenth(connector);
+                return connector2;
+            }
+            
+            if (connectors.back() == '|') //if last element is '|'
+            {
+                connectors.pop_back();   //delete last element of connectors
+                OR* connector = new OR();   //create new OR object
+        
+                connector->setRightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
+                commands.pop_back();  //delete commands last element 
+        
+                connector->setLeftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
+                
+                Parenth* connector2 = new Parenth(connector);
+                return connector2;
+            }
+        }
+        
+    }
 
+
+    if (connectors.back() == '|') //if last element is '|'
+    {
+        connectors.pop_back();   //delete last element of connectors
+        OR* connector = new OR();   //create new OR object
+
+        connector->setRightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
+        commands.pop_back();  //delete commands last element 
+
+        connector->setLeftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
+        
+        return connector;  //input = connector
+    }
+    
     return 0;
 }
 

@@ -7,9 +7,11 @@
 #include <cstdlib>
 #include <string>
 #include <string.h>
+#include <vector>
 
 #include "Cmd.h"
 #include "Legacy.h"
+#include "Test.h"
 
 using namespace std;
 
@@ -22,6 +24,8 @@ string CMD::getData() {return command;}
 
 bool CMD::execute() 
 {
+
+    
     if (command.at(0) == ' ') {                 //delete whitespace
         unsigned it = 0;
         while (command.at(it) == ' ') {
@@ -29,6 +33,12 @@ bool CMD::execute()
         }
         command = command.substr(it);
     }
+    
+    if(command.at(0) == '(')
+    {
+        command.erase(0,1);
+    }
+    
 
     if (command.at(command.size()-1) == ' ') {  //remove whitespace at the end
         unsigned it = command.size()-1;
@@ -38,7 +48,7 @@ bool CMD::execute()
         command = command.substr(0, it+1);
     }
 
-    if (command == "exit" || command == "q")    //check for exit
+    if (command == "exit" || command[0] == 'q')    //check for exit
         exit(0);
 
     char* cmd_cstr = (char*)this->command.c_str();
@@ -59,6 +69,34 @@ bool CMD::execute()
         args[i] = arguments.at(i);
     }
     args[arguments.size()] = NULL;
+    
+    string argString(arguments[0]);
+    
+    if(argString == "test")
+    {
+        string arg1(arguments[1]);
+        if(arg1[0] == '-')
+        {
+            string arg2(arguments[2]);
+            argString = arg1 + " " + arg2;
+        }
+        else
+        {
+            argString = arg1;
+        }
+        
+        Legacy* test = new Test(argString);
+        
+        if(test->execute())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //cout << "args: " << arguments[0] << " " << arguments[1] << endl;
 
     int status;         // status for pid
     pid_t pid = fork(); // create child process
