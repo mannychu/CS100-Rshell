@@ -32,9 +32,10 @@ To define a comment, place "#" before the command and everything after "#" will 
 
 Connector Descriptions
 --------
-&& (AND) - given two valid commands, the second executes if and only if the first command succeeds.
+&& (AND) - given two valid commands, the second executes if and only if the first command succeeds. <br/>
 || (OR) - given two valid commands, the second executes if and only if the first command fails.
-; (SEMICOLON) - given two valid commands, both successfully execute.
+<br/>
+; (SEMICOLON) - given two valid commands, both successfully execute.<br/>
 
 Test Scripts
 --------
