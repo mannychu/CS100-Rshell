@@ -1,6 +1,8 @@
-UCR CS100 RSHELL written by Immanuel Chu and David Weber
+UCR CS100 Legacy Shell
 ================
 
+Authors
+-------
 Immanuel Chu
 ichu003@ucr.edu
 
