@@ -73,6 +73,8 @@ Bugs
 --------
 ***rshell*** does not parse quotation marks
 <br /> example - echo "Hello World" outputs "Hello World" instead of Hello World
+<br /> ***rshell*** does not support open parantheses, it will run the command anyways
+<br /> consecutive uneven opened parantheses will execute when it should not
 
 Licensing Information
 --------
