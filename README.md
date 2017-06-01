@@ -71,7 +71,8 @@ Congratulations! ***rshell*** is now running and you are not able to run BASH co
 
 Bugs
 --------
-None...so far...
+***rshell*** does not parse quotation marks
+<br /> example - echo "Hello World" outputs "Hello World" instead of Hello World
 
 Licensing Information
 --------
