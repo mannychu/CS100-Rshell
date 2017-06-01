@@ -1,4 +1,25 @@
+echo
 echo Testing Precedence 
+
+echo
+( echo A && echo B ) || ( echo C && echo D )
+echo
+false Hello || (echo Hello && World!)
+echo
+(echo Hello && echo World) || echo !!
+echo
+(echo The Cat || echo did not jump) && echo jumped high.
+echo
+echo The Cat || echo did not jump && echo jumped high.
+echo
+echo The Cat || (echo did not jump && echo jumped high.)
+echo
+echo The Bird || ( echo did not fly higher than && echo the dog )
+echo
+(echo The Dog && echo and the cat && echo came before the) && (echo bird || echo snake)
+echo
+(echo The Doge and the && echo Doggo and the Pupper && echo came before the) && (fake bird || echo snake) 
+#fake should not be a command, snake is correct
 echo
 echo Program will exit now...
 exit

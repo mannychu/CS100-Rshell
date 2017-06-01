@@ -1,10 +1,8 @@
 echo
 echo Testing Test Commands...
 echo
-test -e Legacy.h && echo Legacy.h exists
-[ -e Legacy.h ] && echo Legacy.h exists
-test -d Legacy.h || echo directory Legacy.h does not exist
-[ -f .h ] && echo file Legacy.h exists
+test -e nonExistent.cpp; echo nonExistent.cpp does not exist
+test -e nonExistent.txt; echo nonExistent.txt does not exist
 
 echo
 echo Creating testDir and testFile
@@ -14,13 +12,20 @@ touch testFile
 test -d testDir && echo testDir exists ~directory~
 test -f testFile && echo testFile exits ~file~
 
+echo
+echo Using [brackets] to test the test functions
+
+[ -d testDir ] && echo testDir exists ~directory~ -brackets-
+[ -f testFile ] && echo testFile exists ~file~ -brackets-
+
+
+echo
+echo Deleting testFile and testDir
 rm testFile
 rm -r testDir
 
-echo
-echo Deleted testFile and testDir
 [ -d testDir ] || echo testDir no longer exists
 test -f testFile || echo testFile no longer exist
-exit
+echo
 echo Program will exit now.
 exit
