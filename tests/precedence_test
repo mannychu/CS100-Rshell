@@ -21,5 +21,14 @@ echo
 (echo The Doge and the && echo Doggo and the Pupper && echo came before the) && (fake bird || echo snake) 
 #fake should not be a command, snake is correct
 echo
+echo Testing Nested Parentheses
+((echo Frog && echo Frogger) || ls -m)
+(echo One) && ((echo Two && echo Three) || echo Should not Print)
+echo
+echo Testing Uneven Amount of Parantheses
+(echo Fail
+(echo Failure))
+(echo Catastrophic Fail) && echo Phail)))
+
 echo Program will exit now...
 exit
