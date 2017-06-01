@@ -62,6 +62,8 @@ void parseInput(string &input, Legacy* &inputs)
 {
     bool commentFound = false;
     //bool parenFound = false;
+    int rightPar = 0;
+    int leftPar = 0;
     bool commandPush = false;
     bool leftbracketFound = false;
     bool testSignaled = false;
@@ -78,7 +80,21 @@ void parseInput(string &input, Legacy* &inputs)
             input = input.substr(begin, i - begin); //input is now substring from beginning until comment
             commentFound = true; //set comment flag to true
         }
-    }//END FOR
+        else if(input.at(i) == '(')
+        {
+            leftPar++;
+        }
+        else if(input.at(i) == ')')
+        {
+            rightPar++;
+        }
+    }
+    
+    string errmsg = "Error. Please check parentheses.";
+    if(leftPar != rightPar)
+    {
+        throw errmsg;
+    }
     
     //check if '[' entered
     for(unsigned i = 0; i < input.size() && leftbracketFound != true; ++i) //run until end of input or left bracket is found
@@ -118,8 +134,8 @@ void parseInput(string &input, Legacy* &inputs)
             {
                 if(i != input.size() - 1) //while i is not inputsize
                 {
-                    ++i;   //increment whole array to make "new" input
-                    ++begin;  //by incrementing i and begin
+                    i++;   //increment whole array to make "new" input
+                    begin++;  //by incrementing i and begin
                 }
             }
             commandPush = false; //set commandPush flag to false
@@ -157,12 +173,17 @@ void parseInput(string &input, Legacy* &inputs)
         {
             connectors.push_back(input.at(i));
             
-            string parenthCmd = input.substr(begin, i - begin);
-            
-            if(parenthCmd != "")
+            if(input.at(begin) == '|' || input.at(begin) == '&')
             {
-                commandPush = true;
+                begin = begin + 2;
+            }
+            
+            string parenthCmds = input.substr(begin, i - begin);
+            
+            if(parenthCmds != "")
+            {
                 commands.push_back(parenthCmd);
+                commandPush = true;
                 begin = i + 1;
             }
         }
@@ -210,6 +231,10 @@ void parseInput(string &input, Legacy* &inputs)
         connectors.pop_back();   //get rid of ';' in connectors
         commands.pop_back();  //get rid of last element in commands
     }//END IF
+    
+    
+    
+    
 
     //if connectors has nothing and testSignaled is false
     if(connectors.size() == 0 && !testSignaled) //single command
@@ -249,9 +274,12 @@ void makeTree(Legacy*& inputs, vector<char>& connectors, vector<string>& command
         in = 0;   //reset in
         return;
     }
+
     
-    inputs = treeUtility(connectors, commands); //create executables..?
+    inputs = treeUtility(connectors, commands); //create executables
+    
     return;
+    
 }
 
 
@@ -305,8 +333,11 @@ Legacy* treeUtility(vector<char>& connectors, vector<string>& commands)
     {
         stack<string> cmdStack;
         stack<char> conStack;
+        
         vector<char> copyConnector;
+        
         vector<string> copyCommand;
+        
         int count = 1;
         
         connectors.pop_back();
@@ -367,18 +398,10 @@ Legacy* treeUtility(vector<char>& connectors, vector<string>& commands)
         
         
         //finally create object
-        Parenth* par = new Parenth(treeUtility(copyConnector, copyCommand));
+        Legacy* par = new Parenth(treeUtility(copyConnector, copyCommand));
         
         return par;
-        
-//        Legacy* dec = par;
-//        
-//        while(!connectors.empty())
-//        {
-//            dec = treeUtility(connectors, commands);
-//        }
-//        
-//        return dec;
+
         
         
         
@@ -398,7 +421,7 @@ int main()
     for ( ; ; )         //continute until...
     {
         
-        cout << "$ ";   //bash AESTHETIX
+        cout << "$ ";   //bash $
         getline(cin, entireLine);   //get user input
         
         if((entireLine == "") || (checkForSpace(entireLine))) 
