@@ -9,15 +9,14 @@ class Parenth : public Connector
     public:
     
     //Constructors
-        
-        Parenth();
-        
-        Parenth(Legacy* obj);
+    
+        Parenth(Legacy* paren);
     
     //Functions
         
         bool execute();
-        void setChild(Legacy* obj);
+    
+    //Variables
         
         Legacy* parenthObj;
         
