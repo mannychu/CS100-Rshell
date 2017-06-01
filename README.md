@@ -62,9 +62,9 @@ In order to run ***rshell***, open up your terminal and type these commands afte
 to your desired directory.
 ```
 1. git clone https://github.com/mannychu/rshell.git
-2. cd rshell
+2. cd rshell/src
 3. make
-4. ./bin/rshell
+4. ./test.out
 ```
 Congratulations! ***rshell*** is now running and you are not able to run BASH commands
 
@@ -75,6 +75,7 @@ Bugs
 <br /> example - echo "Hello World" outputs "Hello World" instead of Hello World
 <br /> ***rshell*** does not support open parantheses, it will run the command anyways
 <br /> consecutive uneven opened parantheses will execute when it should not
+<br /> there are issues with the makefile being in the root file, so in order for it to work, please run the program as described above
 
 Licensing Information
 --------
