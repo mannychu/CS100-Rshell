@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include "Legacy.h"
+#include "Test.h"
 
 using namespace std;
 

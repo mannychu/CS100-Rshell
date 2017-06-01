@@ -2,6 +2,7 @@
 
 #include "Connect.h"
 #include "Legacy.h"
+#include "Test.h"
 
 //Empty Constructor
 Connector::Connector() {}

@@ -1,3 +1,4 @@
+#include "Legacy.h"
 #include "Or.h"
 #include "Connect.h"
 

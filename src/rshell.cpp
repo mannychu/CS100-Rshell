@@ -182,7 +182,7 @@ void parseInput(string &input, Legacy* &inputs)
             
             if(parenthCmds != "")
             {
-                commands.push_back(parenthCmd);
+                commands.push_back(parenthCmds);
                 commandPush = true;
                 begin = i + 1;
             }
@@ -443,3 +443,4 @@ int main()
     
     return 0;
 }
+
