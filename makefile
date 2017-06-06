@@ -6,7 +6,7 @@ SOURCES=$(wildcard $(SRCDIR)/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 
 $(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+	$(CC) $(OBJECTS) -o ./bin/rshell
 
 %.o: %.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
