@@ -1,7 +1,8 @@
 CC=g++
 CC_FLAGS=-Wall -ansi
 EXEC=test.out
-SOURCES=$(wildcard *.cpp)
+SRCDIR = src
+SOURCES=$(wildcard $(SRCDIR)/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 
 $(EXEC): $(OBJECTS)
