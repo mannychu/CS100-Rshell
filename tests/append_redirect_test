@@ -1,32 +1,18 @@
 echo
-echo Testing Multiple Commands...
+echo Testing Append Redirection...
 echo
-echo AND: 1
-ls -l && echo Completed listing -long
-echo
-echo AND: 2 
-echo First && echo Second && echo Third
-echo
-echo OR: 1
-false || echo First OR argument has failed, so second OR argument is executed.
-echo
-echo OR: 2
-echo Yes || echo No || echo No
-echo
-echo SEMICOLON: 1; echo Print after semicolon
-echo
-echo SEMICOLON: 2; echo Run ls -m; ls -m
-echo
-echo Combo Testing...
-echo
-echo SEMI: 1, AND: 1
-echo Begin first test; echo Continue second test && echo Finish with third test
-echo
-echo AND: 1, OR: 1, SEMI: 1
-echo Begin first test && echo Continue with second test, without completing third test || echo Failing the third test #should not print
-echo
-echo OR: 2, AND: 1
-pwd || echo No || echo Still No && echo Still No
+echo Appending test cases 1, 2, 3 through append command
+echo psuedo1 >> ex1
+echo pseudo2 >> ex1
+echo pseudo3 >> ex1
+echo 
+echo sugoi > ex2
+chmod 711 ex1
+chmod 711 ex2
+cat < ex1 >> ex2
+echo Removing ex1 and ex2 files
+rm ex1
+rm ex2
 echo
 echo Program will exit now.
 exit

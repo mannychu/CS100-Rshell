@@ -64,7 +64,7 @@ to your desired directory.
 1. git clone https://github.com/mannychu/rshell.git
 2. cd rshell/src
 3. make
-4. ./test.out
+4. ./bin/rshell
 ```
 Congratulations! ***rshell*** is now running and you are not able to run BASH commands
 
