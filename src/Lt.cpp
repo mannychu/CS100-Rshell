@@ -1,55 +1,72 @@
+#include <iostream>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+
 #include "Lt.h"
 
-Lt::Lt() : left(0), right("") {}
+Lt::Lt() //: left(0), right("") {}
+{
+	left = 0;
+	right = "";
+}
 
-void Lt::setLeft(Input* l) { left = l; }
+void Lt::setLeft(Legacy* left) 
+{ 
+	this->left = left; 
+}
 
-void Lt::setRight(string r) { right = r; }
+void Lt::setRight(string right) 
+{ 
+	this->right = right; 
+}
 
-bool Lt::evaluate() {
-	// Removing leading whitespace
-    if (right.at(0) == ' ') {
+bool Lt::execute() 
+{
+	
+	// Remove whitespace by incrementing string by one position
+    if (right.at(0) == ' ') 
+    {
         unsigned it = 0;
-        while (right.at(it) == ' ') {
+        while (right.at(it) == ' ') 
+        {
             it++;
         }
         right = right.substr(it);
     }
 
-    // Removing trailing whitespace
-    if (right.at(right.size()-1) == ' ') {
+	// Remove whitespace by deleting empty 'spaces'
+    if (right.at(right.size()-1) == ' ') 
+    {
         unsigned it = right.size()-1;
-        while (right.at(it) == ' ') {
+        while (right.at(it) == ' ') 
+        {
             it--;
         }
         right = right.substr(0, it+1);
     }
 
-	// saves stdinput buffer
-	int saveIn = dup(0);
+	//Retain stdinput
+	int buffer = dup(0);
 	
-	// Opens file for input
-	int newIn = open(right.c_str(), O_RDWR);
+	//Opens new file for output
+	int outFile = open(right.c_str(), O_RDWR);
 	
-	// if file does not open, then return an error
-	if (newIn == -1) {
-		perror("Could not open file (in)");
+	//Return an error if the file is not opened
+	if (outFile == -1) 
+	{
+		perror("Error: Unable to open IN file.");
 		return false;
 	}
 
-	// close the prev. input so we can set the new input
 	close(0);
-	dup2(newIn, 0);
+	dup2(outFile, 0);
 
-	// execute left command
-	bool success = left->evaluate();
+	// execute command
+	bool finalEx = left->execute();
 
-	// Restore std output conditions
 	close(0);
-	dup2(saveIn, 0);
+	dup2(buffer, 0);
 	
-	return success;
+	return finalEx;
 }

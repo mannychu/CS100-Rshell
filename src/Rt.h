@@ -1,22 +1,25 @@
 #ifndef Rt_H
 #define Rt_H
 
-#include <unistd.h>
 #include <string>
 #include <stdio.h>
-#include "Input.h"
+#include <unistd.h>
+
+#include "Legacy.h"
 
 using namespace std;
 
-class Rt : public Input {
-private:
-    Input* left;
-    string right;
-public:
-    Rt();
-    void setLeft(Input* l);
-    void setRight(string r);
-    bool evaluate();
+class Rt : public Legacy 
+{
+	private:
+	    Legacy* left;
+	    string right;
+	
+	public:
+	    Rt();
+	    void setLeft(Legacy* left);
+	    void setRight(string right);
+	    bool execute();
 };
 
 #endif

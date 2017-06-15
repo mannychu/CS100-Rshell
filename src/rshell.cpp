@@ -25,6 +25,10 @@
 #include "Semicolon.h"
 #include "Test.h"
 #include "Parenth.h"
+#include "Lt.h"
+#include "Rt.h"
+#include "Pipe.h"
+#include "DubRt.h"
 
 using namespace std;
 
@@ -32,7 +36,7 @@ void parseInput(string&, Legacy*&);
 void testProtocol(string&, Legacy*&);
 bool checkForSpace(const string& input);
 void makeTree(Legacy*&, vector<char>&, vector<string>&, bool);
-Legacy* treeUtility(vector<char>& connectors, vector<string>& commands);
+Legacy* treeUtility(Legacy* Fed, vector<char>& connectors, vector<string>& commands);
 
 //checks input string for spaces in conjunction with #comments in other part
 bool checkForSpace(const string& input) 
@@ -60,13 +64,14 @@ void testProtocol(string& input, Legacy* &inputs)
 
 void parseInput(string &input, Legacy* &inputs)
 {
-    bool commentFound = false;
     //bool parenFound = false;
     int rightPar = 0;
     int leftPar = 0;
     bool commandPush = false;
     bool leftbracketFound = false;
     bool testSignaled = false;
+    bool commentFound = false;
+
     vector<char> connectors;
     vector<string> commands;
     unsigned begin = 0; //beginning index. this will increment as the input is parsed to create the "new" input
@@ -210,15 +215,75 @@ void parseInput(string &input, Legacy* &inputs)
             {
                 //cout << "11" << endl;
                 connectors.push_back(input.at(i)); //push back command at index i
-                commands.push_back(input.substr(begin, i - begin));  //pushback commands from begin to i - begin
-                begin = i + 2;   //increment begin by 2 to make up for "||"
-                commandPush = true; //set commandPush flag to true
+                string orCmd = input.substr(begin, i - begin);
+
+                // commands.push_back(input.substr(begin, i - begin));  //pushback commands from begin to i - begin
+                
+                if (orCmd != "") 
+                {
+                    begin = i + 2;   //increment begin by 2 to make up for "||"
+                    commandPush = true; //set commandPush flag to true
+                    commands.push_back(orCmd);
+                }
             }
         }
+        //checking for pipe
+        else if (input.at(i) == '|') {
+            // push 'p' for pipe since or connector is taken already
+            connectors.push_back('p');
+            string pipeCmd = input.substr(begin, i - begin);
+            if (pipeCmd != "") {
+                begin = i + 1;
+                commands.push_back(pipeCmd);
+            }
+        }
+        // checks for the input redirection < connector
+        else if (input.at(i) == '<') {
+            connectors.push_back(input.at(i));
+            string lefty = input.substr(begin, i - begin);
+            if (lefty != "") {
+                begin = i + 1;
+                commands.push_back(lefty);
+            }
+        }
+        // checks for the output redirection > connector and the >> connector
+        else if (input.at(i) == '>') {
+            // for the >> connector
+            if (input.at(i + 1) == '>') {
+                // a represents the >> connector
+                connectors.push_back('a');
+                string appendCmd = input.substr(begin, i - begin);
+                if (appendCmd != "") {
+                    begin = i + 2;
+                    commands.push_back(appendCmd);
+                }
+            }
+            // for the > connector
+            // fixed the double read in with > and >>
+            else if (input.at(i - 1) != '>') {
+                connectors.push_back(input.at(i));
+                string righty = input.substr(begin, i - begin);
+                if (righty != "") {
+                    begin = i + 1;
+                    commands.push_back(righty);
+                    //commandPushed = true;
+                }
+            }
+            
+        }
+
+
         //if connectors, commands are not empty, and no more input to parse, and last char is NOT ';', and testSignaled is false
         else if(!connectors.empty() && !commands.empty() && i == input.size() - 1 && input.at(input.size() - 1) != ';' && !testSignaled) 
         {
             //cout << "12" << endl;
+            if (input.at(begin) == '|') {
+                begin = begin + 2;
+            }
+            if (input.at(begin) == '&') {
+                begin = begin + 2;
+            }
+
             commands.push_back(input.substr(begin, input.size()));   //pushback the whole input. input has no connectors, simply one command
         }
     }//END FOR
@@ -275,58 +340,119 @@ void makeTree(Legacy*& inputs, vector<char>& connectors, vector<string>& command
         return;
     }
 
+    Legacy* Fed = NULL;
     
-    inputs = treeUtility(connectors, commands); //create executables
+    inputs = treeUtility(Fed, connectors, commands); //create executables
     
+    while(!connectors.empty())
+    {
+        Fed = inputs;
+        inputs = treeUtility(Fed, connectors, commands);
+    }
+
     return;
     
 }
 
 
-Legacy* treeUtility(vector<char>& connectors, vector<string>& commands) 
+Legacy* treeUtility(Legacy* Fed, vector<char>& connectors, vector<string>& commands) 
 {
     if(commands.size() == 1 && connectors.empty())  // Base Legacy case, returns a Command
     { 
         // cout << "Legacy" << endl;
         return new CMD(commands.at(0));
     }
-    
+
+    if (connectors.back() == ';')   //if last element is ';'
+    {
+        connectors.pop_back();  //delete ';'
+        Semicolon* connector = new Semicolon(); //create new Semicolon object
+
+        if (Fed == NULL) 
+        {
+            connector->setrightChild(new CMD(commands.back()));
+            // cout << "setright after" << endl;
+            commands.pop_back();
+        }
+        else 
+        {
+            connector->setrightChild(Fed);
+            Fed = NULL;
+        }
+        
+        // cout << "setLeft before" << endl;
+        connector->setleftChild(treeUtility(Fed, connectors, commands));
+        // cout << "setLeft after" << endl;
+        
+        
+        Fed = connector;
+        // returns top node
+        return Fed;
+    }
+        
+        // connector->setrightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
+        // commands.pop_back();  //delete commands last element
+        // connector->setleftChild(treeUtility(Fed, connectors, commands)); //recursively call treeUtility using updated connectors and commands
+
+        // return connector;  //input = connector
+    // }
+
     if (connectors.back() == '&')   //if last element of connectors is '&', create AND object
     {
         connectors.pop_back();   //delete last object, in this case '&'. this is possible because there are two '&'
         AND* connector = new AND(); //creat new AND object
         
-        connector->setrightChild(new CMD(commands.back())); //simultaneously create new CMD of last element of commands and set it as connector's right child
-        commands.pop_back();  //delete commands last element
-        connector->setleftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
-
-        return connector; //input = connector
-    }
-    
-    if (connectors.back() == ';')   //if last element is ';'
-    {
-        connectors.pop_back();  //delete ';'
-        Semicolon* connector = new Semicolon(); //create new Semicolon object
+        if(Fed == NULL) 
+        {
+            connector->setrightChild(new CMD(commands.back()));
+            commands.pop_back();
+        }
+        else
+        {
+            connector->setrightChild(Fed);
+            Fed = NULL;
+        }
         
-        connector->setrightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
-        commands.pop_back();  //delete commands last element
-        connector->setleftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
+        connector->setleftChild(treeUtility(Fed, connectors, commands));
+        Fed = connector;
+        
+        // returns top node
+        return Fed;
 
-        return connector;  //input = connector
+        // connector->setrightChild(new CMD(commands.back())); //simultaneously create new CMD of last element of commands and set it as connector's right child
+        // commands.pop_back();  //delete commands last element
+        // connector->setleftChild(treeUtility(Fed, connectors, commands)); //recursively call treeUtility using updated connectors and commands
+
+        // return connector; //input = connector
     }
-
 
     if (connectors.back() == '|') //if last element is '|'
     {
         connectors.pop_back();   //delete last element of connectors
         OR* connector = new OR();   //create new OR object
 
-        connector->setRightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
-        commands.pop_back();  //delete commands last element 
-
-        connector->setLeftChild(treeUtility(connectors, commands)); //recursively call treeUtility using updated connectors and commands
+        if (Fed == NULL) 
+        {
+            connector->setRightChild(new CMD(commands.back()));
+            commands.pop_back();
+        }
+        else 
+        {
+            connector->setRightChild(Fed);
+            Fed = NULL;
+        }
         
-        return connector;  //input = connector
+        connector->setLeftChild(treeUtility(Fed, connectors, commands));
+        Fed = connector;
+        
+        // returns top node
+        return Fed;
+        // connector->setRightChild(new CMD(commands.back())); //simultaneously create CMD using last element of commands and set it as connector's right child
+        // commands.pop_back();  //delete commands last element 
+
+        // connector->setLeftChild(treeUtility(Fed, connectors, commands)); //recursively call treeUtility using updated connectors and commands
+        
+        // return connector;  //input = connector
     }
     
     if(connectors.back() == ')')
@@ -398,13 +524,75 @@ Legacy* treeUtility(vector<char>& connectors, vector<string>& commands)
         
         
         //finally create object
-        Legacy* par = new Parenth(treeUtility(copyConnector, copyCommand));
+        Legacy* par = new Parenth(treeUtility(Fed, copyConnector, copyCommand));
         
-        return par;
+        Fed = par;
 
+        while (!connectors.empty()) 
+        {
+            Fed = treeUtility(Fed, connectors, commands);
+        }
         
-        
-        
+        return Fed;
+        // return par;
+    }
+
+        // cout << "< in progress" << endl;
+    if (connectors.back() == '<') 
+    {
+        Lt* lel = new Lt();
+
+        lel->setRight(commands.back());
+        commands.pop_back();
+        connectors.pop_back();
+
+        lel->setLeft(treeUtility(Fed, connectors, commands));
+
+        Fed = lel;
+        return Fed;
+    }
+    // cout << "> in progress"  << endl;
+    if (connectors.back() == '>') 
+    {
+        Rt* red = new Rt();
+
+        red->setRight(commands.back());
+        commands.pop_back();
+        connectors.pop_back();
+
+        red->setLeft(treeUtility(Fed, connectors, commands));
+
+        Fed = red;
+        return Fed;
+    }
+    // cout << ">> in progress" << endl;
+    if (connectors.back() == 'a') 
+    {
+        // cout << "READ APPPEND" << endl;
+        DubRt* app = new DubRt();
+
+        app->setRight(commands.back());
+        commands.pop_back();
+        connectors.pop_back();
+
+        app->setLeft(treeUtility(Fed, connectors, commands));
+
+        Fed = app;
+        return Fed;
+    }
+    // cout << "| in progress" << endl;
+    if (connectors.back() == 'p') 
+    {
+        Pipe* piper = new Pipe();
+
+        piper->setRight(commands.back());
+        commands.pop_back();
+        connectors.pop_back();
+
+        piper->setLeft(treeUtility(Fed, connectors, commands));
+
+        Fed = piper;
+        return Fed;
     }
     
     return 0;
@@ -419,8 +607,7 @@ int main()
     Legacy* inputs = 0;
     
     for ( ; ; )         //continute until...
-    {
-        
+    {   
         cout << "$ ";   //bash $
         getline(cin, entireLine);   //get user input
         
@@ -443,4 +630,3 @@ int main()
     
     return 0;
 }
-

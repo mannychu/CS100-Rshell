@@ -1,22 +1,27 @@
 #ifndef LT_H
 #define LT_H
 
-#include <unistd.h>
+#include "Legacy.h"
+
 #include <string>
 #include <stdio.h>
-#include "Input.h"
+#include <unistd.h>
 
 using namespace std;
 
-class Lt : public Input {
-private:
-    Input* left;
-    string right;
-public:
-    Lt();
-    void setLeft(Input* l);
-    void setRight(string r);
-    bool evaluate();
+class Lt : public Legacy {
+	
+	private:
+
+	    Legacy* left;
+	    string right;
+
+	public:
+
+	    Lt();
+	    void setLeft(Legacy* left);
+	    void setRight(string right);
+	    bool execute();
 };
 
 #endif

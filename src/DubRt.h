@@ -1,22 +1,28 @@
 #ifndef DUBRT_H	
 #define DUBRT_H
 
-#include <unistd.h>
 #include <string>
 #include <stdio.h>
-#include "Input.h"
+#include <unistd.h>
+
+#include "Legacy.h"
 
 using namespace std;
 
-class DubRt : public Input {
-private:
-    Input* left;
-    string right;
-public:
-    DubRt();
-    void setLeft(Input* l);
-    void setRight(string r);
-    bool evaluate();
+class DubRt : public Legacy 
+{
+	private:
+
+	    Legacy* left;
+	    string right;
+
+	public:
+    
+	    DubRt();
+	    void setLeft(Legacy* left);
+	    void setRight(string right);
+	    bool execute();
+
 };
 
 #endif
